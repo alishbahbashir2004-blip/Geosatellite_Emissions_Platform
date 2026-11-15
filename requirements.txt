@@ -1,0 +1,12 @@
+streamlit
+langgraph
+earthengine-api
+folium
+streamlit-folium
+altair
+pandas
+branca
+numpy
+fastapi
+uvicorn[standard]
+pydantic
