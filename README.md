@@ -121,7 +121,9 @@ co2/                CO2 agent — deliberately NOT the same files. See below.
   backend.py          five analyses, each free to refuse and say why
   chartview.py        its own charts
   mapview.py          its own maps
-  frontend.py         the page: five tabs, one per analysis
+  frontend.py         the page: four tabs (trend, inventory, snapshots,
+                      inferred) — the fifth analysis, anomaly vs.
+                      surroundings, is wired up in the React port only
   explore.py          a runnable argument for all of the above
 ```
 
@@ -143,10 +145,12 @@ signal at city scale is roughly 0.01% of its background — a hundredth of
 methane's and a three-thousandth of NO2's.
 
 So there is no `run_pipeline` returning one state dict, no raster with hotspot
-boxes, and no single number. There are five analyses behind five tabs, each
-of which can decline and explain instead. The usual outcome for a city is a
-refusal, and that is the correct answer rather than a failure — `co2/NOTES.md`
-has the measurements.
+boxes, and no single number. There are five analyses, each of which can
+decline and explain instead — the React page shows all five as tabs; the
+Streamlit page currently shows four (the vs.-surroundings anomaly tab isn't
+wired up there yet, though the backend function and its charts/maps already
+exist). The usual outcome for a city is a refusal, and that is the correct
+answer rather than a failure — `co2/NOTES.md` has the measurements.
 
 Two of the four CO2 products stopped years ago (assimilated XCO2 in February
 2022, the emissions inventory in December 2023), so the page draws a coverage
@@ -285,7 +289,7 @@ surrounding-area layer, and each gas's `mapview.py` gives the page its own
 
 | Gas | Product | Band | Reported in | Classified on | Views |
 |-----|---------|------|-------------|---------------|-------|
-| CH4 | OFFL L3 CH4 | `CH4_column_volume_mixing_ratio_dry_air` | ppb, column mixing ratio | **ppb** above local background | single + compare |
+| CH4 | OFFL L3 CH4 | `CH4_column_volume_mixing_ratio_dry_air_bias_corrected` | ppb, column mixing ratio | **ppb** above local background | single + compare |
 | CO  | OFFL L3 CO  | `CO_column_number_density` | mmol/m², total column | **percent** above local background | single + compare |
 | NO2 | OFFL L3 NO2 | `tropospheric_NO2_column_number_density` | µmol/m², tropospheric column | **percent** above local background | single |
 | SO2 | OFFL L3 SO2 | `SO2_column_number_density` | µmol/m², column | **µmol/m²** above local background | single |
@@ -321,7 +325,7 @@ each gas's background is, and getting it wrong would make an agent lie:
 Toronto, −106 over Athabasca and −100 over Alberta, while the area means sat
 between 24 and 38 — the scatter on a single pixel is several times larger than
 the difference between one area and another. Its level table therefore has a
-**Within noise** band covering 0–50 µmol/m², drawn in grey rather than a
+**Within noise** band covering −50 to 50 µmol/m², drawn in grey rather than a
 warning colour, and the page carries a banner above the headline metric
 saying an enhancement inside that band is not a detection. TROPOMI sees SO2
 reliably from strong sources — smelters, large power stations, sour-gas
